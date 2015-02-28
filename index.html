@@ -1,0 +1,122 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <script type="text/javascript" src="js/jquery-1.11.1.js"></script>
+
+</head>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#runButton').on('click', function () {
+            $('#prefix  tr').remove()
+            $('#log li').remove()
+            var data = initPattern($('#pattern').val())
+            var indexes = indexArray(data.length)
+            $('#prefix').append(getRow("i", indexes))
+            $('#prefix').append(getRow("pattern", data))
+            var failureFunction = prefix($('#pattern').val())
+            $('#prefix').append(getRow("pi[i]", failureFunction))
+        })
+
+    });
+
+
+    /* This is prefix function or failure function according to original concept. Anyway whole magic is encapsulated here */
+    function prefix(s) {
+        var n = s.length;
+        var pattern = initPattern(s);
+        var pi = initArray(n);
+        var t = 0;
+        for (var i = 1; i < n; i++) {
+            showLogMessage("Now i :" + i);
+            while (t > 0 && isNotEqual(pattern[i], pattern[t])) {
+                showLogMessage("Going Back t = pi[t-1]  t was " + t + " will be " + pi[t - 1]);// + " pattern[t] = " + pattern[pi[t-1]]);
+                t = pi[t - 1];
+            }
+            if (isEqual(pattern[i], pattern[t])) {
+                t++;
+                pi[i] = t;
+                showLogMessage("Incrementing pi[" + (i) + "]=" + t);
+            } else {
+                pi[i] = 0;
+                showLogMessage("Resetting pi[" + (i) + "]=0");
+            }
+        }
+        return pi;
+    }
+
+    /* Helper functions */
+
+    function showLogMessage(message) {
+        $('#log').append('<li>' + message + '</li>')
+    }
+
+    function initArray(n) {
+        var array = [];
+        for (var i = 0; i < n; i++) {
+            array.push(0);
+        }
+        return array;
+    }
+
+    function indexArray(n) {
+        var array = [];
+        for (var i = 0; i < n; i++) {
+            array.push(i);
+        }
+        return array;
+    }
+
+    function initPattern(s) {
+        var array = [];
+        for (var i = 0; i < s.length; i++) {
+            array.push(s.charAt(i));
+        }
+        return array;
+    }
+
+    function isEqual(a, b) {
+        console.dir("COMPARING " + a + "==" + b + " RESULT IS " + (a == b));
+        return a == b;
+    }
+
+    function isNotEqual(a, b) {
+        console.dir("COMPARING " + a + "!=" + b + " RESULT IS " + (a != b));
+        return a != b;
+    }
+
+    function getRow(rowLabel, data) {
+        var row = "<tr><td class='row-label'>" + rowLabel + ":</td>"
+        for (var i = 0; i < data.length; i++) {
+            row += "<td class='row-data'>" + data[i] + "</td>"
+        }
+        return row += "</tr>"
+    }
+
+</script>
+<body>
+
+<br>
+
+<table>
+    <tr>
+        <td>
+            <input type="text" id="pattern">
+        </td>
+        <td>
+            <button type="button" id="runButton">Calculate</button>
+        </td>
+        <br>
+    <div style="float: left;">
+        <table id="prefix">
+
+        </table>
+    </div>
+    <div>
+        <ul id="log">
+        </ul>
+    </div>
+
+</body>
+</html>
